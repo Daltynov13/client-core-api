@@ -1,17 +1,18 @@
 package kz.dar.academy.backend.clientcoreapi.service;
 
 import java.util.List;
-import kz.dar.academy.backend.clientcoreapi.model.ClientModel;
+import kz.dar.academy.backend.clientcoreapi.model.ClientRequest;
+import kz.dar.academy.backend.clientcoreapi.model.ClientResponse;
 
 public interface ClientService {
 
-  void createClient(ClientModel client);
+  ClientResponse createClient(ClientRequest client);
 
-  List<ClientModel> getAllClients();
+  List<ClientResponse> getAllClients();
 
-  ClientModel getClientById(String clientId);
+  ClientResponse getClientById(String clientId);
 
-  void updateClientById(String clientId, ClientModel client);
+  void updateClientById(String clientId, ClientRequest client);
 
   void deleteClientById(String clientId);
 }

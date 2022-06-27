@@ -1,61 +1,63 @@
 package kz.dar.academy.backend.clientcoreapi.service;
 
 import static java.util.UUID.randomUUID;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
+import static org.modelmapper.convention.MatchingStrategies.STRICT;
 
 import java.util.List;
-import kz.dar.academy.backend.clientcoreapi.model.ClientModel;
+import kz.dar.academy.backend.clientcoreapi.model.ClientEntity;
+import kz.dar.academy.backend.clientcoreapi.model.ClientRequest;
+import kz.dar.academy.backend.clientcoreapi.model.ClientResponse;
+import kz.dar.academy.backend.clientcoreapi.repository.ClientRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ClientServiceImpl implements ClientService {
 
-  private static final HashMap<String, ClientModel> clientMap = new HashMap<>();
+
+  @Autowired
+  private ClientRepository clientRepository;
+
+  static ModelMapper modelMapper = new ModelMapper();
 
   static {
-    String id = "1";
-    String id1 = "2";
-    String id2 = "3";
-    clientMap.put(id,
-        ClientModel.builder()
-            .clientId(id)
-            .surname("Ivanov").name("Petr").email("test@mail.ru").build());
-    clientMap.put(id1,
-        ClientModel.builder()
-            .clientId(id1)
-            .surname("Petrov").name("Evgenii").email("test@mail.ru").build());
-    clientMap.put(id2,
-        ClientModel.builder()
-            .clientId(id2)
-            .surname("Kalashnikov").name("Aleksandr").email("test@mail.ru").build());
+    modelMapper.getConfiguration().setMatchingStrategy(STRICT);
   }
 
   @Override
-  public void createClient(ClientModel client) {
+  public ClientResponse createClient(ClientRequest client) {
     client.setClientId(randomUUID().toString());
-    clientMap.put(client.getClientId(), client);
+    ClientEntity entity = modelMapper.map(client, ClientEntity.class);
+    clientRepository.save(entity);
+    return modelMapper.map(entity, ClientResponse.class);
   }
 
   @Override
-  public List<ClientModel> getAllClients() {
-    return new ArrayList<>(clientMap.values());
+  public List<ClientResponse> getAllClients() {
+    return stream(clientRepository.findAll().spliterator(), false).map(
+        post -> modelMapper.map(post, ClientResponse.class)).collect(toList());
   }
 
   @Override
-  public ClientModel getClientById(String clientId) {
-    return clientMap.get(clientId);
+  public ClientResponse getClientById(String clientId) {
+    return modelMapper.map(clientRepository.findByClientId(clientId), ClientResponse.class);
   }
 
   @Override
-  public void updateClientById(String clientId, ClientModel client) {
-    client.setClientId(randomUUID().toString());
-    clientMap.put(clientId, client);
+  public void updateClientById(String clientId, ClientRequest client) {
+    ClientEntity dbEntity = clientRepository.findByClientId(clientId);
+
+    ClientEntity entity = modelMapper.map(client, ClientEntity.class);
+    entity.setId(dbEntity.getId());
+
+    clientRepository.save(entity);
   }
 
   @Override
   public void deleteClientById(String clientId) {
-    clientMap.remove(clientId);
+    clientRepository.deleteByClientId(clientId);
   }
 }

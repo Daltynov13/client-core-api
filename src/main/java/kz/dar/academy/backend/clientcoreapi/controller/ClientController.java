@@ -4,7 +4,8 @@ import static org.springframework.http.HttpStatus.OK;
 
 import java.util.List;
 import javax.validation.Valid;
-import kz.dar.academy.backend.clientcoreapi.model.ClientModel;
+import kz.dar.academy.backend.clientcoreapi.model.ClientRequest;
+import kz.dar.academy.backend.clientcoreapi.model.ClientResponse;
 import kz.dar.academy.backend.clientcoreapi.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -33,24 +34,24 @@ public class ClientController {
   }
 
   @PostMapping
-  public ResponseEntity<String> createClient(@Valid @RequestBody ClientModel client) {
+  public ResponseEntity<String> createClient(@Valid @RequestBody ClientRequest client) {
     clientService.createClient(client);
     return new ResponseEntity<>("Successful created", OK);
   }
 
   @GetMapping("/all")
-  public List<ClientModel> getAllClients() {
+  public List<ClientResponse> getAllClients() {
     return clientService.getAllClients();
   }
 
   @GetMapping("/{clientId}")
-  public ClientModel getClientById(@PathVariable String clientId) {
+  public ClientResponse getClientById(@PathVariable String clientId) {
     return clientService.getClientById(clientId);
   }
 
   @PutMapping("/{clientId}")
   public ResponseEntity<String> updateClientById(@PathVariable String clientId,
-      @Valid @RequestBody ClientModel client) {
+      @Valid @RequestBody ClientRequest client) {
     clientService.updateClientById(clientId, client);
     return new ResponseEntity<>("Successful updated", OK);
 
